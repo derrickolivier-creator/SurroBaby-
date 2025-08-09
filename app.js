@@ -1,4 +1,4 @@
-// Surrogacy Journey — polished UI with icons & theme toggle
+// Surrogacy Journey — polished UI with icons & theme toggle (v1d fixes)
 
 const els = {
   next: document.getElementById('next-steps'),
@@ -36,7 +36,6 @@ const S = {
   readOnly: false,
 };
 
-// Icons by keyword fallback
 function pickIcon(title){
   const t = title.toLowerCase();
   if (t.includes('ecart') || t.includes('legal')) return '⚖️';
@@ -53,13 +52,12 @@ function pickIcon(title){
   return '📌';
 }
 
-// Utils
 const fmt = (d) => (d ? new Date(d).toISOString().slice(0,10) : '');
 const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
 function parseCSV(str){ return str.split(',').map(s=>s.trim()).filter(Boolean); }
-function save(){ if(S.readOnly) return; localStorage.setItem('surro_ui_v1c', JSON.stringify({settings:S.settings, milestones:S.milestones, shareToken:S.shareToken})); }
+function save(){ if(S.readOnly) return; localStorage.setItem('surro_ui_v1d', JSON.stringify({settings:S.settings, milestones:S.milestones, shareToken:S.shareToken})); }
 function load(){
-  const saved = JSON.parse(localStorage.getItem('surro_ui_v1c') || '{}');
+  const saved = JSON.parse(localStorage.getItem('surro_ui_v1d') || '{}');
   if(saved.settings) S.settings = saved.settings;
   if(saved.milestones) S.milestones = saved.milestones;
   if(saved.shareToken) S.shareToken = saved.shareToken;
@@ -86,7 +84,6 @@ function seed(){
   ];
 }
 
-// Dependency + schedule
 function findById(id){ return S.milestones.find(m => m.id === id); }
 function computeSchedule(){
   const order = S.milestones.slice().sort((a,b)=>a.id-b.id);
@@ -131,7 +128,6 @@ function computeCritical(){
   mark(transfer.id);
 }
 
-// Estimator
 function estimator(){
   const transfer = S.milestones.find(m=>m.title.toLowerCase().includes('transfer'));
   if(!transfer){ return { transfer: null, preg: null, edd: null, embryoDay:S.settings.embryoDay }; }
@@ -139,15 +135,9 @@ function estimator(){
   const tMax = transfer.calcEndMax;
   const embryoDay = Number(S.settings.embryoDay||5);
   const eddShift = 266 - embryoDay;
-  return {
-    transfer: [tMin, tMax],
-    preg: [tMin, tMax],
-    edd: [ addDays(tMin, eddShift), addDays(tMax, eddShift) ],
-    embryoDay,
-  };
+  return { transfer: [tMin, tMax], preg: [tMin, tMax], edd: [ addDays(tMin, eddShift), addDays(tMax, eddShift) ], embryoDay };
 }
 
-// Renderers
 function renderNext(){
   const pending = S.milestones.filter(m=>m.status!=='done').sort((a,b)=>a.calcEarly-b.calcEarly).slice(0,4);
   els.next.innerHTML = '';
@@ -221,7 +211,6 @@ function renderTable(){
   }
 }
 
-// Dialogs
 function openNew(){ openEdit(null); }
 function openEdit(id){
   if (S.readOnly) return;
@@ -243,7 +232,7 @@ function openEdit(id){
   d.querySelector('#m-notes').value = m.notes||'';
   d.querySelector('#m-notes-private').value = m.notesPrivate||'';
   d.returnValue = '';
-  d.showModal();
+  if (d.showModal) { d.showModal(); } else { d.setAttribute('open',''); }
   els.form.onsubmit = (e)=>{
     e.preventDefault();
     const updated = {
@@ -267,10 +256,10 @@ function openEdit(id){
     if (isNew){ S.milestones.push(updated); } else {
       const idx = S.milestones.findIndex(x=>x.id===m.id); S.milestones[idx] = updated;
     }
-    d.close();
+    if (d.close) d.close(); else d.removeAttribute('open');
     computeSchedule(); computeCritical(); renderAll(); save();
   };
-  document.getElementById('cancel-dialog').onclick = ()=> d.close();
+  document.getElementById('cancel-dialog').onclick = ()=> { if (d.close) d.close(); else d.removeAttribute('open'); };
 }
 
 function openSettings(){
@@ -283,7 +272,7 @@ function openSettings(){
   d.querySelector('#retry-max').value = S.settings.retryGap.max||49;
   d.querySelector('#blackout').value = (S.settings.blackoutDays||[]).join(',');
   d.returnValue='';
-  d.showModal();
+  if (d.showModal) { d.showModal(); } else { d.setAttribute('open',''); }
   els.settingsForm.onsubmit = (e)=>{
     e.preventDefault();
     S.settings.timezone = d.querySelector('#tz').value.trim() || 'Pacific/Auckland';
@@ -295,12 +284,12 @@ function openSettings(){
       max: parseInt(d.querySelector('#retry-max').value||'49',10),
     };
     S.settings.blackoutDays = parseCSV(d.querySelector('#blackout').value);
-    d.close(); save(); renderAll();
+    if (d.close) d.close(); else d.removeAttribute('open');
+    save(); renderAll();
   };
-  document.getElementById('cancel-settings').onclick = ()=> d.close();
+  document.getElementById('cancel-settings').onclick = ()=> { if (d.close) d.close(); else d.removeAttribute('open'); };
 }
 
-// Export/Import
 els.exportBtn.onclick = ()=>{
   const data = JSON.stringify({settings:S.settings, milestones:S.milestones}, null, 2);
   const blob = new Blob([data], {type:'application/json'});
@@ -323,13 +312,12 @@ els.fileInput.onchange = (e)=>{
   r.readAsText(f);
 };
 
-// Share link (viewer mode)
 function createShare(){
   if (!S.shareToken) S.shareToken = Math.random().toString(36).slice(2);
   save();
   const url = location.origin + location.pathname + '#viewer=' + S.shareToken;
   navigator.clipboard?.writeText(url);
-  alert('Share link copied to clipboard:\n' + url + '\nAnyone with this link will see a read-only view. Clear it by removing the hash.');
+  alert('Share link copied to clipboard:\\n' + url + '\\nAnyone with this link will see a read-only view. Clear it by removing the hash.');
 }
 function checkViewer(){
   const h = new URLSearchParams(location.hash.slice(1));
@@ -344,14 +332,9 @@ function checkViewer(){
 els.shareBtn.onclick = createShare;
 els.viewerBtn.onclick = ()=>{ location.hash = S.shareToken ? '#viewer='+S.shareToken : ''; checkViewer(); renderAll(); };
 
-// Theme toggle
-els.themeBtn.onclick = ()=>{
-  S.settings.theme = (S.settings.theme === 'dark') ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', S.settings.theme);
-  save();
-};
+els.addMilestone.onclick = openNew;
+els.toggleSettings.onclick = openSettings;
 
-// Boot
 load();
 seed();
 checkViewer();
@@ -359,9 +342,21 @@ computeSchedule();
 computeCritical();
 renderAll();
 
-function renderAll(){
-  renderNext();
-  renderEstimates();
-  renderTimeline();
-  renderTable();
-}
+// Viewer-mode banner
+(function(){
+  const bar = document.createElement('div');
+  bar.style.cssText = 'position:sticky;top:0;z-index:1000;background:#b86e50;color:white;padding:8px 12px;text-align:center;display:none';
+  bar.textContent = 'Read-only viewer mode — editing is disabled.';
+  document.body.prepend(bar);
+  const update = ()=>{ bar.style.display = (S.readOnly ? 'block':'none'); };
+  const prev = checkViewer;
+  checkViewer = function(){ prev(); update(); };
+  update();
+})();
+
+// Theme toggle
+els.themeBtn.onclick = ()=>{
+  S.settings.theme = (S.settings.theme === 'dark') ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', S.settings.theme);
+  save();
+};
