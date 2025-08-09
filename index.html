@@ -185,24 +185,11 @@
   <script src="app.js"></script>
 
   <script>
-  // PWA install + SW register
-  let deferredPrompt;
-  const installBtn = document.getElementById('install-btn');
-  window.addEventListener('beforeinstallprompt', (e)=>{
-    e.preventDefault();
-    deferredPrompt = e;
-    if (installBtn) installBtn.style.display = 'inline-block';
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js', { scope: './' });
   });
-  if (installBtn) installBtn.addEventListener('click', async ()=>{
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    installBtn.style.display = 'none';
-  });
-  if ('serviceWorker' in navigator){
-    window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js'));
-  }
-  </script>
+}
+</script>
 </body>
 </html>
