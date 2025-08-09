@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta name="theme-color" content="#0a0f1f">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta charset="utf-8">
+  <title>Surrogacy Journey — Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__bg"></div>
+    <div class="hero__content">
+      <h1>Surrogacy Journey</h1>
+      <p class="sub">Shared timeline, live estimates, and next steps — all in one place.</p>
+      <div class="hero__actions">
+        <button id="install-btn" class="pill">Install app</button>
+        <button id="toggle-theme" class="pill">Toggle theme</button>
+        <button id="share" class="pill ghost">Share link</button>
+        <button id="viewer" class="pill ghost">Viewer mode</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="cards3">
+      <div class="card kpi">
+        <div class="kpi__icon">🗓️</div>
+        <div>
+          <h3>What’s next</h3>
+          <ul id="next-steps" class="list compact"></ul>
+        </div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi__icon">🧪</div>
+        <div>
+          <h3>Transfer & Pregnancy</h3>
+          <div class="est">
+            <div><label>Transfer window:</label> <span id="transfer-range">—</span></div>
+            <div><label>Pregnancy window:</label> <span id="preg-range">—</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi__icon">🍼</div>
+        <div>
+          <h3>Estimated Due</h3>
+          <div class="est">
+            <div><label>Due window:</label> <span id="edd-range">—</span></div>
+            <div class="muted small">Assumes embryo day <span id="embryo-day-view">5</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row space">
+        <h2>Timeline</h2>
+        <div class="row gap">
+          <button id="add-milestone" class="pill">+ Add</button>
+          <button id="toggle-settings" class="pill ghost">Settings</button>
+          <button id="export" class="pill ghost">Export</button>
+          <button id="import" class="pill ghost">Import</button>
+          <input id="file-input" type="file" accept="application/json" hidden>
+        </div>
+      </div>
+
+      <div id="timeline" class="timeline"></div>
+
+      <div class="legend">
+        <span class="status done">Done</span>
+        <span class="status active">Active</span>
+        <span class="status planned">Planned</span>
+        <span class="status blocked">Blocked</span>
+        <span class="status critical">Critical</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Milestones</h2>
+      <table id="table" class="table">
+        <thead>
+          <tr>
+            <th>Icon</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Owner</th>
+            <th>Earliest Start</th>
+            <th>Likely Duration</th>
+            <th>Dependencies</th>
+            <th>Private Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Legend</h2>
+      <ul class="list icons">
+        <li>⚖️ ECART / legal</li>
+        <li>🧪 Screening / lab</li>
+        <li>🧬 Semen analysis</li>
+        <li>💊 Supplements (folic acid)</li>
+        <li>🥚 Egg collection / stimulation</li>
+        <li>🧫 Fertilisation & culture</li>
+        <li>🧊 Quarantine / freezing</li>
+        <li>✈️ Shipping / logistics</li>
+        <li>🎄 Clinic holiday window</li>
+        <li>🩺 Hormone preparation</li>
+        <li>🤰 Embryo transfer</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- Dialogs -->
+  <dialog id="milestone-dialog" class="dialog">
+    <form method="dialog" id="milestone-form">
+      <h3 id="dialog-title">New milestone</h3>
+      <div class="form grid2">
+        <label>Title <input id="m-title" required></label>
+        <label>Owner <input id="m-owner" placeholder="Derrick / Hamish / Mignon / Tasj / Clinic"></label>
+        <label>Status
+          <select id="m-status">
+            <option>planned</option>
+            <option>active</option>
+            <option>done</option>
+            <option>blocked</option>
+          </select>
+        </label>
+        <label>Icon (emoji) <input id="m-icon" placeholder="e.g., 🧪"></label>
+        <label>Earliest start <input id="m-early" type="date"></label>
+        <label>Latest start <input id="m-late" type="date"></label>
+        <label>Duration (min / likely / max)
+          <div class="triple">
+            <input id="m-dur-min" type="number" placeholder="1">
+            <input id="m-dur-likely" type="number" placeholder="7">
+            <input id="m-dur-max" type="number" placeholder="14">
+          </div>
+        </label>
+        <label>Depends on (IDs) <input id="m-deps" placeholder="1,3"></label>
+        <label>Confidence % <input id="m-conf" type="number" min="0" max="100" value="80"></label>
+        <label>Shared notes <textarea id="m-notes" rows="2"></textarea></label>
+        <label class="private">Private notes <textarea id="m-notes-private" rows="2"></textarea></label>
+      </div>
+      <menu>
+        <button type="submit" class="pill">Save</button>
+        <button type="button" id="cancel-dialog" class="pill ghost">Cancel</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="settings-dialog" class="dialog">
+    <form method="dialog" id="settings-form">
+      <h3>Settings</h3>
+      <div class="form grid2">
+        <label>Timezone <input id="tz" value="Pacific/Auckland"></label>
+        <label>Embryo day at transfer
+          <select id="embryo-day">
+            <option value="3">3</option>
+            <option value="5" selected>5</option>
+          </select>
+        </label>
+        <label>Cycle success probability (%) <input id="succ" type="number" min="1" max="99" value="45"></label>
+        <label>Retry gap (days, min/likely/max)
+          <div class="triple">
+            <input id="retry-min" type="number" value="28">
+            <input id="retry-likely" type="number" value="35">
+            <input id="retry-max" type="number" value="49">
+          </div>
+        </label>
+        <label>Clinic blackout days <input id="blackout" value="Sun,PublicHolidays"></label>
+      </div>
+      <menu>
+        <button type="submit" class="pill">Save</button>
+        <button type="button" id="cancel-settings" class="pill ghost">Cancel</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+
+  <script>
+  // PWA install + SW register
+  let deferredPrompt;
+  const installBtn = document.getElementById('install-btn');
+  window.addEventListener('beforeinstallprompt', (e)=>{
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.style.display = 'inline-block';
+  });
+  if (installBtn) installBtn.addEventListener('click', async ()=>{
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.style.display = 'none';
+  });
+  if ('serviceWorker' in navigator){
+    window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js'));
+  }
+  </script>
+</body>
+</html>

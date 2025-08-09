@@ -1,0 +1,71 @@
+:root{
+  --bg:#0a0f1f; --card:#0f1837; --line:#20315b;
+  --text:#e8ecf8; --muted:#aab4d1; --brand:#7aa2ff; --brand-2:#a07aff;
+  --ok:#2bb673; --warn:#e6a23c; --bad:#e35d6a; --chip:#2d3d72;
+  --pill:#101a3a; --shadow:0 8px 24px rgba(10,15,31,.35), 0 2px 6px rgba(10,15,31,.25);
+}
+:root[data-theme='light']{
+  --bg:#f7f9ff; --card:#ffffff; --line:#d8e1ff;
+  --text:#0c1326; --muted:#52607d; --brand:#2a56ff; --brand-2:#7b35ff;
+  --ok:#0c9d64; --warn:#b56d0f; --bad:#c63a48; --chip:#eef2ff;
+  --pill:#eff3ff; --shadow:0 8px 24px rgba(20,20,40,.1), 0 2px 6px rgba(20,20,40,.05);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:16px/1.5 ui-sans-serif, -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+.hero{position:relative;overflow:hidden}
+.hero__bg{position:absolute;inset:0;background:radial-gradient(1200px 400px at 10% -10%, var(--brand), transparent),
+  radial-gradient(800px 300px at 90% 10%, var(--brand-2), transparent);
+  filter:blur(20px);opacity:.6}
+.hero__content{position:relative;max-width:1100px;margin:0 auto;padding:40px 16px}
+.hero h1{margin:0 0 6px;font-size:28px;letter-spacing:.2px}
+.sub{color:var(--muted);margin:0 0 16px}
+.hero__actions{display:flex;gap:8px;flex-wrap:wrap}
+.pill{padding:10px 12px;border-radius:999px;border:1px solid var(--line);background:var(--pill);color:var(--text);cursor:pointer}
+.pill.ghost{background:transparent}
+.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:-24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.kpi{display:flex;gap:12px;align-items:flex-start}
+.kpi__icon{font-size:28px;line-height:1}
+h2{margin:0 0 10px}
+h3{margin:0 0 8px;font-size:16px}
+.list{margin:0 0 0 18px}
+.list.compact li{margin-bottom:4px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.row{display:flex;align-items:center}
+.row.space{justify-content:space-between}
+.row.gap{gap:8px;flex-wrap:wrap}
+.timeline{margin-top:12px;border-left:1px dashed var(--line);padding-left:6px}
+.mrow{position:relative;margin:18px 0;padding-left:10px}
+.mrow .title{display:flex;align-items:center;gap:8px;font-size:14px}
+.mrow .chip{display:inline-flex;align-items:center;gap:6px;background:var(--chip);padding:4px 8px;border-radius:999px}
+.status{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--line);margin-right:6px}
+.status.done{background:rgba(43,182,115,.12)}
+.status.active{background:rgba(230,162,60,.12)}
+.status.planned{background:rgba(122,162,255,.12)}
+.status.blocked{background:rgba(227,93,106,.12)}
+.status.critical{background:linear-gradient(90deg, rgba(123,53,255,.18), rgba(122,162,255,.18))}
+.bar{height:18px;border-radius:10px;position:relative;overflow:hidden;background:linear-gradient(90deg, rgba(122,162,255,.18), rgba(160,122,255,.18))}
+.bar .range{position:absolute;left:0;top:0;height:100%;border-radius:10px}
+.bar .min{background:rgba(122,162,255,.35)}
+.bar .likely{background:rgba(122,162,255,.6)}
+.bar .max{background:rgba(122,162,255,.18)}
+.badges{margin-top:6px;font-size:12px;color:var(--muted)}
+.table{width:100%;border-collapse:collapse;margin-top:6px}
+th,td{border-bottom:1px solid var(--line);padding:10px 8px;font-size:14px;vertical-align:top}
+th{color:var(--muted);text-align:left}
+.iconcell{font-size:18px}
+input,select,textarea{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--chip);color:var(--text)}
+.triple{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+dialog{border:none;border-radius:16px;padding:0;max-width:760px;width:92%}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog form{padding:16px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+menu{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.legend{margin-top:10px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap}
+.private{opacity:.9}
+@media (max-width:900px){
+  .cards3{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+}

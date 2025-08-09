@@ -1,0 +1,13 @@
+{
+  "name": "Surrogacy Journey",
+  "short_name": "Surrogacy",
+  "description": "Shared timeline, live estimates, and next steps for your surrogacy journey.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0a0f1f",
+  "theme_color": "#0a0f1f",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
